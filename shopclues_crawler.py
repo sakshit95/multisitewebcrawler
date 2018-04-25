@@ -12,7 +12,7 @@ def shoclues_searching(driver, product_name, timeout=5):
     elem.clear()
     elem.send_keys(product_name)
     elem.send_keys(Keys.RETURN)
-    sleep(5)
+    sleep(2)
 
 
 
@@ -25,7 +25,7 @@ def find_actual_price(product):
             return span.text
         else:
             continue
-    return 0
+    return 0.0
 
 
 #df=pd.DataFrame(all_contents)
