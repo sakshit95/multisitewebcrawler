@@ -70,21 +70,21 @@ class Ui_MainWindow(object):
             if crawler_name == 'AMAZON':
                 buttonReply = QMessageBox.question(self.mw, 'confirm', "do you want to start scraping",
                                                    QMessageBox.Yes | QMessageBox.No,
-                                                   QMessageBox.Cancel)
+                                                   QMessageBox.Yes)
                 if buttonReply == QMessageBox.Yes:
                     amazon_crawler.crawl_product(pname)
 
             elif crawler_name == "SHOPCLUES":
                 buttonReply = QMessageBox.question(self.mw, 'confirm', "do you want to start scraping",
                                                    QMessageBox.Yes | QMessageBox.No,
-                                                   QMessageBox.Cancel)
+                                                   QMessageBox.Yes)
                 if buttonReply == QMessageBox.Yes:
                     result = shopclues_crawler.main(pname)
                     self.running.setText('saved ' + result)
             elif crawler_name == "SNAPDEAL":
                 buttonReply = QMessageBox.question(self.mw, 'confirm', "do you want to start scraping",
                                                    QMessageBox.Yes | QMessageBox.No,
-                                                   QMessageBox.Cancel)
+                                                   QMessageBox.Yes)
                 if buttonReply == QMessageBox.Yes:
                     snapdeal_crawler.crawl_snapdealproducts(pname)
         else:
