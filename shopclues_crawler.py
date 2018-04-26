@@ -7,60 +7,77 @@ import pandas as pd
 
 
 def shoclues_searching(driver, product_name, timeout=5):
-    product_name = input('enter product query')
     elem = driver.find_element_by_id("autocomplete")
     elem.clear()
     elem.send_keys(product_name)
     elem.send_keys(Keys.RETURN)
-    sleep(2)
+    sleep(timeout)
+
+def text_price_to_real_price(price):
+    if 'Rs.' in price:
+        price=price[3:]
+    price=price.replace(',','')
+    return float(price)
+
+def get_product_data(container,link):
+    title = container.find_element_by_tag_name('h1').text
+    try:rating =float(container.find_element_by_css_selector('.prd_ratings span').text)
+    except:rating = 0.0
+    try:reviews=int(container.find_element_by_css_selector('span.prd_reviews').text.split()[0])
+    except:reviews= 0
+    sale_price=container.find_element_by_class_name('f_price').text
+    try:striked_price=container.find_element_by_id('sec_list_price_').text
+    except:striked_price = sale_price
+    try:price=container.find_element_by_class_name('o_price').text
+    except:price = sale_price
+    sale_price=text_price_to_real_price(sale_price)
+    striked_price=text_price_to_real_price(striked_price)
+    price=text_price_to_real_price(price)
+    try:availability =container.find_element_by_id('iscod').text
+    except:availability="not available"
+
+    return {
+        'name': title,
+        'price': price,
+        'sale_price': sale_price,
+        'availability': availability,
+        'reviews': reviews,
+        'rating': rating,
+        'links': link,
+        'Striked Price': striked_price
+    }
 
 
-
-
-def find_actual_price(product):
-    span_tags = product.find_elements_by_tag_name('span')
-    for span in span_tags:
-        clas = span.get_attribute('class')
-        if 'lfloat product-desc-price strike ' in clas:
-            return span.text
-        else:
-            continue
-    return 0.0
-
-
-#df=pd.DataFrame(all_contents)
-#df.to_csv('snapdeal.csv')
-
-def crawl_snapdealproducts(product_name):
-    driver = webdriver.Chrome()
+def main(query="mobiles"):
+    driver = webdriver.Chrome('chromedriver')
     driver.get("http://www.shopclues.com")
-    shoclues_searching(driver, product_name)
-    result_list = driver.find_elements_by_class_name("")
-    all_contents = []
-    for product in result_list:
-        product_item = product.find_element_by_class_name("product-title ")
+    main_window = driver.current_window_handle
+    shoclues_searching(driver, query)
 
-        price = product.find_element_by_class_name("product-price")
-        actual_price = find_actual_price(product)
-        try:
-            rating = product.find_element_by_class_name("filled-stars")
-            ratingValue = rating.get_attribute('style')
-            ratingValue = ratingValue.split()[1]
-            ratingValue = ratingValue[0:-1]
-        except:
-            ratingValue = 0
-        print(ratingValue)
-        # do more here
-        # print(product_item.text, price.text, actual_price)
-        product_dic = {"name": product_item.text, "discounted price": price.text, "actualprice": actual_price,
-                       "rating": ratingValue}
-        all_contents.append(product_dic)
+    all_products = driver.find_element_by_id('product_list')
+    rows = all_products.find_elements_by_class_name('row')
+    product_list =[]
+    for row in rows:
+        product_items = row.find_elements_by_class_name('search_blocks')
+        for product_item in product_items:
+            product_link = product_item.find_element_by_tag_name('a')
+            link=product_link.get_attribute('href')
+            product_link.send_keys(Keys.CONTROL + Keys.RETURN)
+            sleep(5)
+            driver.switch_to.window(driver.window_handles[1])
+            open_window = driver.current_window_handle
+            print(driver.title)
+            container = driver.find_element_by_id('main_data')
+            data=get_product_data(container,link)
+            product_list.append(data)
+            driver.close()
+            driver.switch_to.window(main_window)
+            driver.switch_to.default_content()
+        print('next row')
+    print('finish')
+    df=pd.DataFrame(product_list)
+    df.to_csv("database/"+query+"_shopclues.csv")
+    print('saved output to ',"database/"+query+"_shopclues.csv")
 
-    if len(all_contents) > 0:
-        data = pd.DataFrame(all_contents)
-
-        # df.to_csv(f'database/{product_name}_details.csv')
-        data.to_csv(f'database/{product_name}_snapdealproducts.csv')
-        print(data)
-        # data.to_csv('snapdeal_' + product_name + "_.csv")
-    driver.quit()
+if __name__ == "__main__":
+    main(query="mobiles")
