@@ -60,7 +60,7 @@ def crawl_snapdealproducts(product_name):
         data = pd.DataFrame(all_contents)
 
         # df.to_csv(f'database/{product_name}_details.csv')
-        data.to_csv(f'database/{product_name}_snapdealproducts.csv')
+        data.to_csv(f'database/snapdeal_{product_name}_products.csv')
         print(data)
         # data.to_csv('snapdeal_' + product_name + "_.csv")
     driver.quit()

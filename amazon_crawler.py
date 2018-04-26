@@ -80,7 +80,7 @@ def crawl_product(product_name):
             print(e)
         # sleep(TIMEOUT)
     df = pd.DataFrame(dataset)
-    df.to_csv(f'database/{product_name}_details.csv')
+    df.to_csv(f'database/amazon_{product_name}_details.csv')
     driver.quit()
 
 

@@ -76,8 +76,10 @@ def main(query="mobiles"):
         print('next row')
     print('finish')
     df=pd.DataFrame(product_list)
-    df.to_csv("database/"+query+"_shopclues.csv")
+    df.to_csv("database/shopclues_"+query+".csv")
     print('saved output to ',"database/"+query+"_shopclues.csv")
+    driver.quit()
+    return "database/shopclues_"+query+".csv"
 
 if __name__ == "__main__":
     main(query="mobiles")
