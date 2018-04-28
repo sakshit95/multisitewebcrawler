@@ -15,6 +15,11 @@ def perform_amazon_search(driver, product_name, timeout=5):
     elem.send_keys(Keys.RETURN)
     sleep(timeout)
 
+def text_price_to_real_price(price):
+    if 'Rs.' in price:
+        price=price[3:]
+    price=price.replace(',','')
+    return float(price)
 
 def find_product_detail(product_link, driver):
     try:
@@ -24,7 +29,7 @@ def find_product_detail(product_link, driver):
     try:
         product_price = driver.find_element_by_id("priceblock_ourprice").text
     except:
-        product_price = 0
+        product_price = 0.0
     try:
         product_strikeprice = driver.find_element_by_class_name("a-text-strike").text
     except:
@@ -45,6 +50,9 @@ def find_product_detail(product_link, driver):
         ratings = driver.find_element_by_id('acrPopover').get_attribute('title')
     except:
         ratings = "0"
+        sale_price = text_price_to_real_price(sale_price)
+        product_strikeprice = text_price_to_real_price(product_strikeprice)
+        product_price = text_price_to_real_price(product_price)
 
     return {
         'name': product_name,
@@ -80,7 +88,7 @@ def crawl_product(product_name):
             print(e)
         # sleep(TIMEOUT)
     df = pd.DataFrame(dataset)
-    df.to_csv(f'database/amazon_{product_name}_details.csv')
+    df.to_csv(f'database/amazon_{product_name}.csv', encoding= "utf-8")
     driver.quit()
 
 
